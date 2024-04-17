@@ -34,6 +34,31 @@ int atoi(const char *s)
 	return neg ? n : -n;
 }
 
+void *memmove(void *dst, const void *src, size_t n)
+{
+	const char *s;
+	char *d;
+
+	s = src;
+	d = dst;
+	if (s < d && s + n > d) {
+		s += n;
+		d += n;
+		while (n-- > 0)
+			*--d = *--s;
+	} else
+		while (n-- > 0)
+			*d++ = *s++;
+
+	return dst;
+}
+
+// memcpy exists to placate GCC.  Use memmove.
+void *memcpy(void *dst, const void *src, size_t n)
+{
+	return memmove(dst, src, n);
+}
+
 void *memset(void *dest, int c, size_t n)
 {
 	char *p = dest;

@@ -13,14 +13,15 @@ endif()
 
 set(ASM_DIR asm)
 set(BIN_DIR bin)
+set(STRIPPED_DIR stripped)
 
 # Toolchain
-set(PREFIX ${ARCH}-linux-musl-)
+set(PREFIX ${ARCH}-unknown-linux-musl-)
 
 if (${ARCH} STREQUAL riscv32)
     set(CMAKE_C_FLAGS       "-march=rv32imac -mabi=ilp32 -mcmodel=medany")
 elseif (${ARCH} STREQUAL riscv64)
-    set(CMAKE_C_FLAGS       "-march=rv64imac -mabi=lp64 -mcmodel=medany")
+    set(CMAKE_C_FLAGS       "-march=rv64gc -mabi=lp64 -mcmodel=medany")
 else()
     message("Unsupported arch: ${ARCH}")
 endif ()
@@ -67,7 +68,7 @@ foreach(PATH ${SRCS})
 
     add_executable(${NAME} ${PATH})
     target_link_libraries(${NAME} ulib)
-    target_link_options(${NAME} PRIVATE -Ttext ${ENTRY})
+    # target_link_options(${NAME} PRIVATE -Ttext ${ENTRY}) 
 
     add_custom_command(
             TARGET ${NAME}
@@ -80,6 +81,12 @@ foreach(PATH ${SRCS})
             POST_BUILD
             COMMAND mkdir -p ${BIN_DIR}
             COMMAND ${CMAKE_OBJCOPY} ARGS -O binary $<TARGET_FILE:${NAME}> ${BIN_DIR}/${NAME}
+    )
+    add_custom_command(
+            TARGET ${NAME}
+            POST_BUILD
+            COMMAND mkdir -p ${STRIPPED_DIR}
+            COMMAND ${CMAKE_OBJCOPY} ARGS --strip-all --remove-section=.comment --remove-section=.note $<TARGET_FILE:${NAME}> ${STRIPPED_DIR}/${NAME}
     )
 endforeach()
 

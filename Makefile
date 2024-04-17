@@ -6,6 +6,7 @@ CHAPTER ?=
 app_dir = src
 elf_dir := build/$(ARCH)
 bin_dir := build/bin
+stripped_elf_dir := build/stripped
 out_dir := target
 cmake_build_args := -DARCH=$(ARCH) -DCHAPTER=$(CHAPTER)
 ifeq ($(MODE), release)
@@ -91,11 +92,13 @@ del:
 	@rm -rf $(out_dir)
 	@mkdir -p $(out_dir)/bin/
 	@mkdir -p $(out_dir)/elf/
+	@mkdir -p $(out_dir)/stripped/
 
 target: binary del
 	@echo tests=$(CH_TESTS)
 	@$(foreach t, $(CH_TESTS), cp $(bin_dir)/$(t)* $(out_dir)/bin/;)
 	@$(foreach t, $(CH_TESTS), cp $(elf_dir)/$(t)* $(out_dir)/elf/;)
+	@$(foreach t, $(CH_TESTS), cp $(stripped_elf_dir)/$(t)* $(out_dir)/stripped/;)
 
 clean:
 	@rm -rf asm build target
